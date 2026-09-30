@@ -61,7 +61,7 @@ export const CustomizerModal: React.FC<CustomizerModalProps> = ({
                 type="text"
                 value={config.friendName}
                 onChange={(e) => onUpdateConfig({ friendName: e.target.value })}
-                placeholder="YOUR ARMY"
+                placeholder="DHARMA RAJU"
                 className="w-full bg-zinc-900 border border-white/15 focus:border-red-500 rounded px-3 py-2 text-sm text-white font-cinzel outline-none transition-colors"
               />
               <span className="text-[10px] text-zinc-500 font-sans mt-1 block">

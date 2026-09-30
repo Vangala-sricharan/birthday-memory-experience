@@ -11,14 +11,14 @@ interface ThreeDPhotoWallProps {
 export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, parallaxY }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<MemorySlot | null>(null);
 
-  // Depth plane patterns for dynamic array mapping
+  // Depth plane offsets for cinematic staggered multi-plane gallery
   const depthPattern = [
-    { z: 90, rotate: -2, span: 'col-span-12 md:col-span-7' },
-    { z: -80, rotate: 1.5, span: 'col-span-12 md:col-span-5' },
-    { z: -40, rotate: -1.2, span: 'col-span-12 md:col-span-4' },
-    { z: 120, rotate: 2, span: 'col-span-12 md:col-span-8' },
-    { z: 50, rotate: -0.8, span: 'col-span-12 md:col-span-6' },
-    { z: -70, rotate: 1.2, span: 'col-span-12 md:col-span-6' },
+    { z: 90, rotate: -1.5 },
+    { z: -70, rotate: 1.2 },
+    { z: -40, rotate: -1.0 },
+    { z: 110, rotate: 1.8 },
+    { z: 45, rotate: -0.8 },
+    { z: -60, rotate: 1.0 },
   ];
 
   return (
@@ -43,45 +43,53 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
         </p>
       </div>
 
-      {/* 3D Multi-Plane Gallery Canvas */}
+      {/* 3D Multi-Plane Gallery Canvas with orientation-aware columns */}
       <div className="max-w-6xl mx-auto perspective-2000 py-6">
         <div
-          className="grid grid-cols-12 gap-8 md:gap-10 transform-style-3d transition-transform duration-500 ease-out"
+          className="grid grid-cols-12 gap-6 md:gap-8 transform-style-3d transition-transform duration-500 ease-out items-start"
           style={{
             transform: `rotateY(${parallaxX * 7}deg) rotateX(${-parallaxY * 7}deg)`,
           }}
         >
           {memories.map((item: MemorySlot, idx: number) => {
             const pattern = depthPattern[idx % depthPattern.length];
+            const isPortrait = item.presentation?.orientation === 'portrait';
+            // Portrait cards take 4 columns (1/3 row on desktop, 1/2 on tablet), Landscape takes 8 columns (2/3 row)
+            const spanClass = isPortrait
+              ? 'col-span-12 sm:col-span-6 md:col-span-4'
+              : 'col-span-12 sm:col-span-12 md:col-span-8';
 
             return (
               <div
                 key={item.id}
-                className={`${pattern.span} transform-style-3d`}
+                className={`${spanClass} transform-style-3d`}
                 style={{
                   transform: `translateZ(${pattern.z}px) rotateZ(${pattern.rotate}deg)`,
                 }}
               >
                 <div
                   onClick={() => setSelectedPhoto(item)}
-                  className="group relative rounded-lg overflow-hidden border border-white/10 hover:border-red-500/60 bg-zinc-950/80 backdrop-blur-sm shadow-[0_20px_50px_rgba(0,0,0,0.85)] cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(220,38,38,0.25)]"
+                  className="group relative rounded-xl overflow-hidden border border-white/10 hover:border-red-500/60 bg-zinc-950/80 backdrop-blur-sm shadow-[0_20px_50px_rgba(0,0,0,0.85)] cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(220,38,38,0.25)]"
                 >
-                  {/* Image Container with slot placeholder */}
+                  {/* Image Container with true aspect ratio & focal anchor */}
                   <CinematicArtwork
                     src={item.src}
                     alt={item.title}
                     slotLabel={item.title}
-                    aspectRatio="aspect-[16/10]"
+                    aspectRatio={item.presentation?.aspectRatio || 'aspect-[3/4]'}
+                    fit={item.presentation?.fit || 'cover'}
+                    position={item.presentation?.position || 'center'}
+                    scale={item.presentation?.scale || 1.0}
                   />
 
                   {/* Subtle metallic gloss border highlight */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent pointer-events-none" />
 
                   {/* Card Overlay info */}
                   <div className="absolute bottom-0 inset-x-0 p-5 flex items-end justify-between z-10">
                     <div>
                       <span className="text-[10px] font-mono tracking-widest text-red-400 uppercase block mb-1">
-                        SLOT {item.slotNumber} // {item.year || 'ARCHIVE'}
+                        SLOT {item.slotNumber} // {item.presentation?.orientation.toUpperCase()}
                       </span>
                       <h3 className="text-lg md:text-xl font-cinzel font-bold text-white tracking-wide">
                         {item.title}
@@ -102,14 +110,16 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
         </div>
       </div>
 
-      {/* Cinematic Modal Lightbox */}
+      {/* Cinematic Modal Lightbox with Orientation Preservation */}
       {selectedPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10 bg-black/90 backdrop-blur-xl animate-fade-in"
           onClick={() => setSelectedPhoto(null)}
         >
           <div
-            className="relative w-full max-w-4xl bg-zinc-950 border border-white/15 rounded-xl overflow-hidden shadow-2xl"
+            className={`relative w-full ${
+              selectedPhoto.presentation?.orientation === 'portrait' ? 'max-w-xl' : 'max-w-4xl'
+            } bg-zinc-950 border border-white/15 rounded-xl overflow-hidden shadow-2xl transition-all`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -126,15 +136,18 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
               src={selectedPhoto.src}
               alt={selectedPhoto.title}
               slotLabel={selectedPhoto.title}
-              aspectRatio="aspect-[16/10]"
+              aspectRatio={selectedPhoto.presentation?.aspectRatio || 'aspect-[4/3]'}
+              fit={selectedPhoto.presentation?.fit || 'cover'}
+              position={selectedPhoto.presentation?.position || 'center'}
+              scale={selectedPhoto.presentation?.scale || 1.0}
             />
 
             {/* Modal Details */}
-            <div className="p-8 bg-zinc-950 border-t border-white/10">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div className="p-6 md:p-8 bg-zinc-950 border-t border-white/10">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
                 <div>
                   <span className="text-xs font-mono tracking-[0.3em] uppercase text-red-500 block mb-1">
-                    SLOT {selectedPhoto.slotNumber} // ARCHIVAL REEL
+                    SLOT {selectedPhoto.slotNumber} // {selectedPhoto.presentation?.orientation.toUpperCase()} ARCHIVE
                   </span>
                   <h3 className="text-2xl md:text-3xl font-cinzel font-bold text-white tracking-wide">
                     {selectedPhoto.title}
@@ -162,8 +175,8 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
                 {selectedPhoto.caption}
               </p>
 
-              <div className="text-[11px] font-mono text-zinc-400">
-                PATH // <span className="text-zinc-300">{selectedPhoto.src}</span>
+              <div className="text-[11px] font-mono text-zinc-500">
+                PATH // <span className="text-zinc-400">{selectedPhoto.src}</span>
               </div>
             </div>
           </div>

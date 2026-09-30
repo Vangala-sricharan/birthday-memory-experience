@@ -13,7 +13,7 @@ import { useParallax } from './hooks/useParallax';
 import { useAudioAtmosphere } from './hooks/useAudioAtmosphere';
 
 import { CinematicLoader } from './components/CinematicLoader';
-import { Navigation } from './components/Navigation';
+import { CinematicProgress } from './components/CinematicProgress';
 import { MotionBackground } from './components/MotionBackground';
 import { CinematicHero } from './components/CinematicHero';
 import { MomentsHorizontalPinned } from './components/MomentsHorizontalPinned';
@@ -91,11 +91,8 @@ export default function App() {
       {/* Cinematic Star Dust & Ambient Atmospheric Nebulae Background */}
       <MotionBackground parallaxX={parallaxX} parallaxY={parallaxY} />
 
-      {/* Top 3-Zone Minimal Header Navigation & Timeline Bar */}
-      <Navigation
-        friendName={config.friendName}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-      />
+      {/* Right-Side Vertical Cinematic Progress Indicator */}
+      <CinematicProgress />
 
       {/* Main Cinematic Scroll Experience */}
       <main className="relative z-10 w-full flex flex-col">
@@ -135,7 +132,6 @@ export default function App() {
       {/* Subtle Floating Music Control */}
       <MusicControl
         isPlaying={audio.isPlaying}
-        frequencies={audio.frequencies}
         onToggle={audio.togglePlay}
       />
 
@@ -155,8 +151,16 @@ export default function App() {
           <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
           <span>A PRIVATE CINEMATIC TRIBUTE // {config.birthdayYear}</span>
         </div>
-        <div className="text-zinc-400">
-          DESIGNED FOR {config.friendName.toUpperCase()} · ALL MEMORIES RESERVED
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="px-3 py-1 rounded border border-white/10 hover:border-red-600/50 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white transition-all cursor-pointer text-[10px] tracking-widest uppercase"
+          >
+            CUSTOMIZE
+          </button>
+          <div className="text-zinc-500">
+            DESIGNED FOR {config.friendName.toUpperCase()} · ALL MEMORIES RESERVED
+          </div>
         </div>
       </footer>
     </div>

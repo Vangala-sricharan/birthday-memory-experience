@@ -2,5 +2,7 @@
   "name": "Cinematic Birthday Experience",
   "description": "A luxury cinematic interactive birthday film and motion tribute featuring real GSAP ScrollTrigger parallax, device gyroscope interaction, 3D memory wall, and pinned horizontal journey.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

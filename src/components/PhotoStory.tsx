@@ -23,11 +23,11 @@ export const PhotoStory: React.FC<PhotoStoryProps> = () => {
       container.querySelectorAll('.moment-expand-card').forEach((card) => {
         gsap.fromTo(
           card,
-          { scale: 0.8, opacity: 0.6, borderRadius: '24px' },
+          { scale: 0.82, opacity: 0.6, borderRadius: '24px' },
           {
             scale: 1,
             opacity: 1,
-            borderRadius: '8px',
+            borderRadius: '12px',
             scrollTrigger: {
               trigger: card,
               start: 'top 85%',
@@ -156,21 +156,22 @@ export const PhotoStory: React.FC<PhotoStoryProps> = () => {
         </p>
       </div>
 
-      {/* Scalable Cinematic Moments Showcase */}
+      {/* Scalable Cinematic Moments Showcase with Per-Photo Canvas Tuning */}
       <div className="max-w-6xl mx-auto flex flex-col gap-36 md:gap-44">
         {memories.map((slot: MemorySlot, idx: number) => {
           const meta = getTransitionMeta(idx);
           const isWipe = idx % 4 === 1;
+          const containerWidth = slot.presentation?.containerMaxWidth || 'max-w-xl';
 
           return (
-            <div key={slot.id} className={meta.wrapperClass}>
-              <div className="w-full flex items-center justify-between text-xs font-mono text-zinc-400 uppercase tracking-widest mb-4">
+            <div key={slot.id} className={`${meta.wrapperClass} ${containerWidth} mx-auto w-full`}>
+              <div className="w-full flex items-center justify-between text-xs font-mono text-zinc-400 uppercase tracking-widest mb-4 px-1">
                 <span className="flex items-center gap-2 text-red-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
                   {meta.label}
                 </span>
-                <span className="text-zinc-500">
-                  SLOT {slot.slotNumber} // {slot.src}
+                <span className="text-zinc-500 text-[11px]">
+                  SLOT {slot.slotNumber} // {slot.presentation.orientation.toUpperCase()}
                 </span>
               </div>
 
@@ -181,7 +182,10 @@ export const PhotoStory: React.FC<PhotoStoryProps> = () => {
                   src={slot.src}
                   alt={slot.title}
                   slotLabel={slot.title}
-                  aspectRatio="aspect-[16/9]"
+                  aspectRatio={slot.presentation.aspectRatio}
+                  fit={slot.presentation.fit}
+                  position={slot.presentation.position}
+                  scale={slot.presentation.scale}
                 />
 
                 {/* Optional red light sweep for wipe cards */}
@@ -189,16 +193,16 @@ export const PhotoStory: React.FC<PhotoStoryProps> = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-600/20 to-transparent pointer-events-none -translate-x-full animate-[shimmer_3s_infinite]" />
                 )}
 
-                <div className="p-8 md:p-10 bg-zinc-950/90 border-t border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="max-w-xl">
-                    <h3 className="text-2xl md:text-3xl font-cinzel font-bold text-white tracking-wide mb-2">
+                <div className="p-6 md:p-8 bg-zinc-950/90 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="max-w-md">
+                    <h3 className="text-xl md:text-2xl font-cinzel font-bold text-white tracking-wide mb-1">
                       {slot.title}
                     </h3>
-                    <p className="text-sm text-zinc-400 font-sans leading-relaxed">
+                    <p className="text-xs sm:text-sm text-zinc-400 font-sans leading-relaxed">
                       {slot.caption}
                     </p>
                   </div>
-                  <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 shrink-0">
+                  <div className="flex items-center gap-3 text-xs font-mono text-zinc-400 shrink-0">
                     {slot.year && (
                       <span className="flex items-center gap-1.5">
                         <Calendar size={13} className="text-red-500" />

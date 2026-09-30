@@ -26,6 +26,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
   const title1Ref = useRef<HTMLDivElement | null>(null);
   const title2Ref = useRef<HTMLDivElement | null>(null);
   const titleFinalRef = useRef<HTMLDivElement | null>(null);
+  const dateRef = useRef<HTMLDivElement | null>(null);
   const heroImageContainerRef = useRef<HTMLDivElement | null>(null);
   const subtitleRef = useRef<HTMLDivElement | null>(null);
   const glowRef = useRef<HTMLDivElement | null>(null);
@@ -69,7 +70,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
       '-=0.2'
     );
 
-    // Hold briefly, then transition to Phase 2: "HAPPY BIRTHDAY, YOUR ARMY"
+    // Hold briefly, then transition to Phase 2: "HAPPY BIRTHDAY, DHARMA RAJU"
     tl.to(
       title2Ref.current,
       {
@@ -89,6 +90,16 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
       { opacity: 1, filter: 'blur(0px)', scale: 1, y: 0, duration: 2.0 },
       '-=0.2'
     );
+
+    // Subtle cinematic entrance for the birthday date
+    if (dateRef.current) {
+      tl.fromTo(
+        dateRef.current,
+        { opacity: 0, filter: 'blur(10px)', y: 10 },
+        { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1.5, ease: 'power2.out' },
+        '-=1.4'
+      );
+    }
 
     // 01 — HERO IMAGE enters with cinematic scale, blur-to-sharp, and depth
     tl.fromTo(
@@ -114,7 +125,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
     <section
       id="hero-section"
       ref={containerRef}
-      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-20 select-none"
+      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-6 pt-12 md:pt-16 pb-20 select-none"
     >
       {/* 3D Depth Layer 1: Atmospheric Center Red Light Flare (1x Parallax) */}
       <div
@@ -135,7 +146,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
 
       {/* 3D Depth Layer 2: Middle floating typographic indices (2x Parallax) */}
       <div
-        className="absolute top-28 left-8 md:left-16 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase flex items-center gap-2 pointer-events-none transition-transform duration-500"
+        className="absolute top-8 md:top-10 left-6 md:left-14 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase flex items-center gap-2 pointer-events-none transition-transform duration-500"
         style={{
           transform: `translate3d(${parallaxX * 35}px, ${parallaxY * 35}px, 0)`,
         }}
@@ -145,7 +156,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
       </div>
 
       <div
-        className="absolute top-28 right-8 md:right-16 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase pointer-events-none transition-transform duration-500"
+        className="absolute top-8 md:top-10 right-6 md:right-14 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase pointer-events-none transition-transform duration-500"
         style={{
           transform: `translate3d(${parallaxX * -35}px, ${parallaxY * -35}px, 0)`,
         }}
@@ -196,11 +207,23 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
             <span>THE CELEBRATION IS LIVE</span>
           </div>
 
-          <p className="text-sm md:text-base font-cinzel tracking-[0.4em] uppercase text-zinc-400 mb-2">
+          <p className="text-xs sm:text-sm md:text-base font-cinzel tracking-[0.4em] uppercase text-zinc-400 mb-2">
             HONORING THE MILESTONE
           </p>
 
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.12em] text-metallic-silver uppercase leading-none drop-shadow-2xl">
+          {/* Birthday Date */}
+          <div
+            ref={dateRef}
+            className="flex items-center justify-center gap-3 sm:gap-4 my-2 sm:my-3"
+          >
+            <span className="w-6 sm:w-10 md:w-14 h-[1px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent" />
+            <span className="font-cinzel text-xs sm:text-sm md:text-base font-bold tracking-[0.35em] text-red-400 uppercase drop-shadow-[0_0_12px_rgba(239,68,68,0.6)]">
+              30 SEPTEMBER
+            </span>
+            <span className="w-6 sm:w-10 md:w-14 h-[1px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent" />
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.12em] text-metallic-silver uppercase leading-none drop-shadow-2xl mt-1">
             HAPPY
           </h1>
           <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.12em] text-metallic-silver uppercase leading-none drop-shadow-2xl mt-2">
@@ -208,8 +231,8 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
           </h1>
 
           <div className="relative mt-3">
-            <span className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.12em] text-metallic-crimson uppercase leading-none">
-              {friendName || 'YOUR ARMY'}
+            <span className="text-3xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.08em] sm:tracking-[0.12em] text-metallic-crimson uppercase leading-none">
+              {friendName || 'DHARMA RAJU'}
             </span>
             {/* Subtle underglow */}
             <div className="absolute inset-0 bg-red-600/20 blur-xl -z-10" />
@@ -219,13 +242,13 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
             ref={subtitleRef}
             className="mt-6 max-w-xl text-zinc-400 font-sans font-light text-sm md:text-base tracking-wide leading-relaxed mb-10"
           >
-            A cinematic testament to memories forged, roads traveled, and the untold wonders awaiting your next horizon.
+            A cinematic testament to memories forged, journeys shared, and the untold wonders awaiting your next horizon.
           </div>
 
           {/* PRIMARY HERO IMAGE: 01 — HERO (Must be the first major photograph shown) */}
           <div
             ref={heroImageContainerRef}
-            className="w-full max-w-3xl rounded-xl overflow-hidden border border-white/15 bg-zinc-950 shadow-[0_25px_70px_rgba(0,0,0,0.95)] relative group transition-transform duration-500"
+            className={`w-full ${HERO_IMAGE.presentation.containerMaxWidth} rounded-xl overflow-hidden border border-white/15 bg-zinc-950 shadow-[0_25px_70px_rgba(0,0,0,0.95)] relative group transition-transform duration-500`}
             style={{
               transform: `rotateY(${parallaxX * 5}deg) rotateX(${-parallaxY * 5}deg)`,
             }}
@@ -234,7 +257,10 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
               src={HERO_IMAGE.src}
               alt={HERO_IMAGE.title}
               slotLabel={HERO_IMAGE.title}
-              aspectRatio="aspect-[16/9]"
+              aspectRatio={HERO_IMAGE.presentation.aspectRatio}
+              fit={HERO_IMAGE.presentation.fit}
+              position={HERO_IMAGE.presentation.position}
+              scale={HERO_IMAGE.presentation.scale}
             />
 
             {/* Subtle Metallic & Red Lighting Overlay */}

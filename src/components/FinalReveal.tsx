@@ -67,7 +67,7 @@ export const FinalReveal: React.FC<FinalRevealProps> = ({
         '+=0.4'
       );
 
-      // 4. "YOUR ARMY" with glowing crimson & gold
+      // 4. "DHARMA RAJU" with glowing crimson & gold
       tl.fromTo(
         textStep3Ref.current,
         { opacity: 0, filter: 'blur(20px)', y: 30 },
@@ -150,10 +150,10 @@ export const FinalReveal: React.FC<FinalRevealProps> = ({
           </h2>
         </div>
 
-        {/* Step 3: YOUR ARMY */}
+        {/* Step 3: DHARMA RAJU */}
         <div ref={textStep3Ref} className="relative mb-14">
           <span className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.1em] text-metallic-crimson uppercase leading-none">
-            {friendName || 'YOUR ARMY'}
+            {friendName || 'DHARMA RAJU'}
           </span>
           <div className="absolute inset-0 bg-red-600/25 blur-2xl -z-10" />
         </div>
@@ -161,7 +161,7 @@ export const FinalReveal: React.FC<FinalRevealProps> = ({
         {/* Step 4: Final Tribute Photo with light aura */}
         <div
           ref={photoContainerRef}
-          className="w-full max-w-2xl rounded-2xl overflow-hidden border border-red-800/40 bg-zinc-950 shadow-[0_0_80px_-10px_rgba(220,38,38,0.45)] relative group mb-12"
+          className={`w-full ${SURPRISE_IMAGE.presentation.containerMaxWidth} rounded-2xl overflow-hidden border border-red-800/40 bg-zinc-950 shadow-[0_0_80px_-10px_rgba(220,38,38,0.45)] relative group mb-12`}
         >
           {/* Subtle particle / light aura border */}
           <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 rounded-2xl opacity-20 blur-sm group-hover:opacity-40 transition-opacity" />
@@ -171,7 +171,10 @@ export const FinalReveal: React.FC<FinalRevealProps> = ({
               src={SURPRISE_IMAGE.src}
               alt={SURPRISE_IMAGE.title}
               slotLabel="12 — SURPRISE // 12-surprise.jpeg"
-              aspectRatio="aspect-[4/3]"
+              aspectRatio={SURPRISE_IMAGE.presentation.aspectRatio}
+              fit={SURPRISE_IMAGE.presentation.fit}
+              position={SURPRISE_IMAGE.presentation.position}
+              scale={SURPRISE_IMAGE.presentation.scale}
             />
 
             <div className="p-8 md:p-10 bg-zinc-950/95 border-t border-white/10 text-center">
@@ -203,7 +206,7 @@ export const FinalReveal: React.FC<FinalRevealProps> = ({
               <Heart size={13} className="text-red-500 fill-red-500" />
               DESPATCH MEMORANDUM
             </span>
-            <span>FOR // {friendName || 'YOUR ARMY'}</span>
+            <span>FOR // {friendName || 'DHARMA RAJU'}</span>
           </div>
 
           <p className="text-sm font-sans text-zinc-300 leading-relaxed italic mb-6">

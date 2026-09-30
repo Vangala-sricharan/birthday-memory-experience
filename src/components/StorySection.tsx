@@ -65,18 +65,45 @@ export const StorySection: React.FC = () => {
     src: '/images/birthday/02-ajay.jpeg',
     title: '02 — AJAY',
     year: 'MILESTONE',
+    presentation: {
+      orientation: 'portrait',
+      aspectRatio: 'aspect-[3/4]',
+      rawRatio: 0.75,
+      fit: 'cover',
+      position: 'center 25%',
+      scale: 1.0,
+      containerMaxWidth: 'max-w-lg md:max-w-xl'
+    }
   };
   const slot2 = memories[1] || {
     id: 3,
     src: '/images/birthday/03-beer.jpeg',
     title: '03 — BEER',
     year: 'REVELRY',
+    presentation: {
+      orientation: 'portrait',
+      aspectRatio: 'aspect-[3/4]',
+      rawRatio: 0.75,
+      fit: 'cover',
+      position: 'center 40%',
+      scale: 1.0,
+      containerMaxWidth: 'max-w-lg md:max-w-xl'
+    }
   };
   const slot3 = memories[2] || {
     id: 4,
     src: '/images/birthday/04-bhargav.jpeg',
     title: '04 — BHARGAV',
     year: 'SOLIDARITY',
+    presentation: {
+      orientation: 'portrait',
+      aspectRatio: 'aspect-[3/4]',
+      rawRatio: 0.75,
+      fit: 'cover',
+      position: 'center 25%',
+      scale: 1.0,
+      containerMaxWidth: 'max-w-lg md:max-w-xl'
+    }
   };
 
   return (
@@ -106,12 +133,15 @@ export const StorySection: React.FC = () => {
             “Some people enter your life quietly...”
           </p>
 
-          <div className="story-photo-reveal w-full max-w-3xl rounded-lg overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] group">
+          <div className={`story-photo-reveal w-full ${slot1.presentation?.containerMaxWidth || 'max-w-lg'} rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] group`}>
             <CinematicArtwork
               src={slot1.src}
               alt={slot1.title}
               slotLabel={slot1.title}
-              aspectRatio="aspect-[16/9]"
+              aspectRatio={slot1.presentation?.aspectRatio || 'aspect-[3/4]'}
+              fit={slot1.presentation?.fit || 'cover'}
+              position={slot1.presentation?.position || 'center 25%'}
+              scale={slot1.presentation?.scale || 1.0}
             />
             <div className="bg-zinc-950 px-6 py-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-400">
               <span className="text-white tracking-widest uppercase">{slot1.title}</span>
@@ -126,12 +156,15 @@ export const StorySection: React.FC = () => {
             “...and somehow become part of the story.”
           </p>
 
-          <div className="story-photo-reveal w-full max-w-3xl rounded-lg overflow-hidden border border-red-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.9)] group">
+          <div className={`story-photo-reveal w-full ${slot2.presentation?.containerMaxWidth || 'max-w-lg'} rounded-xl overflow-hidden border border-red-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.9)] group`}>
             <CinematicArtwork
               src={slot2.src}
               alt={slot2.title}
               slotLabel={slot2.title}
-              aspectRatio="aspect-[16/9]"
+              aspectRatio={slot2.presentation?.aspectRatio || 'aspect-[3/4]'}
+              fit={slot2.presentation?.fit || 'cover'}
+              position={slot2.presentation?.position || 'center 40%'}
+              scale={slot2.presentation?.scale || 1.0}
             />
             <div className="bg-zinc-950 px-6 py-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-400">
               <span className="text-white tracking-widest uppercase">{slot2.title}</span>
@@ -146,12 +179,15 @@ export const StorySection: React.FC = () => {
             “Some memories defy the passage of years...”
           </p>
 
-          <div className="story-photo-reveal w-full max-w-3xl rounded-lg overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] group">
+          <div className={`story-photo-reveal w-full ${slot3.presentation?.containerMaxWidth || 'max-w-lg'} rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.9)] group`}>
             <CinematicArtwork
               src={slot3.src}
               alt={slot3.title}
               slotLabel={slot3.title}
-              aspectRatio="aspect-[16/9]"
+              aspectRatio={slot3.presentation?.aspectRatio || 'aspect-[3/4]'}
+              fit={slot3.presentation?.fit || 'cover'}
+              position={slot3.presentation?.position || 'center 25%'}
+              scale={slot3.presentation?.scale || 1.0}
             />
             <div className="bg-zinc-950 px-6 py-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-400">
               <span className="text-white tracking-widest uppercase">{slot3.title}</span>

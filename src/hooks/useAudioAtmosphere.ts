@@ -1,180 +1,163 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+const AUDIO_SRC = '/audio/birthday-music.mp3';
+
+// ONE persistent global Audio instance for the entire application
+let globalAudioInstance: HTMLAudioElement | null = null;
+let isAudioInitialized = false;
+
+function getOrCreateGlobalAudio(): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null;
+
+  if (!globalAudioInstance) {
+    try {
+      globalAudioInstance = new Audio(AUDIO_SRC);
+      globalAudioInstance.loop = true;
+      globalAudioInstance.volume = 0.35;
+      globalAudioInstance.preload = 'auto';
+
+      globalAudioInstance.addEventListener('error', () => {
+        // Gracefully log to console only without breaking UI
+        console.warn('MUSIC UNAVAILABLE');
+      });
+
+      isAudioInitialized = true;
+    } catch {
+      console.warn('MUSIC UNAVAILABLE');
+    }
+  }
+
+  return globalAudioInstance;
+}
+
 export interface AudioState {
   isPlaying: boolean;
-  isMuted: boolean;
   volume: number;
-  frequencies: number[]; // For visualizer
   togglePlay: () => void;
   setVolume: (v: number) => void;
+  play: () => Promise<void>;
+  pause: () => void;
 }
 
 export function useAudioAtmosphere(): AudioState {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [volume, setVolumeState] = useState<number>(0.6);
-  const [frequencies, setFrequencies] = useState<number[]>([15, 25, 45, 30, 20]);
+  const [volume, setVolumeState] = useState<number>(0.35);
+  const userExplicitlyPausedRef = useRef<boolean>(false);
 
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const masterGainRef = useRef<GainNode | null>(null);
-  const oscNodesRef = useRef<OscillatorNode[]>([]);
-  const filterNodesRef = useRef<BiquadFilterNode[]>([]);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const visualizerRafRef = useRef<number | null>(null);
-  const userInteractedRef = useRef<boolean>(false);
+  useEffect(() => {
+    const audio = getOrCreateGlobalAudio();
+    if (!audio) return;
 
-  // Initialize Web Audio synthesizer for cinematic ambient drone
-  const initAudio = useCallback(() => {
-    if (audioCtxRef.current) return;
-
-    try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new AudioCtx();
-      audioCtxRef.current = ctx;
-
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(volume, ctx.currentTime);
-      masterGainRef.current = master;
-
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 64;
-      analyserRef.current = analyser;
-
-      master.connect(analyser);
-      analyser.connect(ctx.destination);
-
-      // Create a lush cinematic chord progression (C2, G2, Eb3, Bb3, D4)
-      const baseFreqs = [65.41, 98.0, 155.56, 233.08, 293.66];
-      const oscillators: OscillatorNode[] = [];
-      const filters: BiquadFilterNode[] = [];
-
-      baseFreqs.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const oscGain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
-
-        // Warm sine and triangle mix
-        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-        // Slow frequency detune for rich analog chorus
-        osc.detune.setValueAtTime((idx - 2) * 4, ctx.currentTime);
-
-        // Lowpass filter for deep cinematic warmth
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(380 + idx * 80, ctx.currentTime);
-        filter.Q.setValueAtTime(1.5, ctx.currentTime);
-
-        oscGain.gain.setValueAtTime(0.08 / (idx + 1), ctx.currentTime);
-
-        osc.connect(filter);
-        filter.connect(oscGain);
-        oscGain.connect(master);
-
-        oscillators.push(osc);
-        filters.push(filter);
-        osc.start();
-      });
-
-      oscNodesRef.current = oscillators;
-      filterNodesRef.current = filters;
-    } catch (e) {
-      console.warn('Web Audio API not supported or initialization failed:', e);
+    // Reset playback to start on fresh load only once
+    if (!isAudioInitialized) {
+      try {
+        audio.currentTime = 0;
+      } catch {
+        // ignore
+      }
     }
-  }, [volume]);
 
-  const startVisualizer = useCallback(() => {
-    if (!analyserRef.current) return;
-    const analyser = analyserRef.current;
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-    const update = () => {
-      analyser.getByteFrequencyData(dataArray);
-      // Sample 5 bars for luxury visualizer
-      const bars = [
-        Math.min(95, Math.max(15, dataArray[1] / 2.7)),
-        Math.min(95, Math.max(20, dataArray[3] / 2.4)),
-        Math.min(95, Math.max(30, dataArray[5] / 2.2)),
-        Math.min(95, Math.max(20, dataArray[8] / 2.6)),
-        Math.min(95, Math.max(12, dataArray[12] / 2.9)),
-      ];
-      setFrequencies(bars);
-      visualizerRafRef.current = requestAnimationFrame(update);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleError = () => {
+      console.warn('MUSIC UNAVAILABLE');
+      setIsPlaying(false);
     };
 
-    visualizerRafRef.current = requestAnimationFrame(update);
-  }, []);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('error', handleError);
 
-  const togglePlay = useCallback(() => {
-    if (!audioCtxRef.current) {
-      initAudio();
+    // Sync current playing and volume state
+    setIsPlaying(!audio.paused && !audio.ended);
+    setVolumeState(audio.volume);
+
+    // 1. Attempt autoplay on mount
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch(() => {
+          // Autoplay blocked by browser policy without user gesture
+          setIsPlaying(false);
+        });
     }
 
-    const ctx = audioCtxRef.current;
-    if (!ctx) return;
-
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(() => {
-        setIsPlaying(true);
-        startVisualizer();
-      });
-    } else if (isPlaying) {
-      if (masterGainRef.current) {
-        masterGainRef.current.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
-      }
-      setTimeout(() => {
-        ctx.suspend();
-        setIsPlaying(false);
-      }, 400);
-    } else {
-      ctx.resume().then(() => {
-        if (masterGainRef.current) {
-          masterGainRef.current.gain.setTargetAtTime(volume, ctx.currentTime, 0.4);
-        }
-        setIsPlaying(true);
-        startVisualizer();
-      });
-    }
-  }, [initAudio, isPlaying, startVisualizer, volume]);
-
-  const setVolume = useCallback((newVol: number) => {
-    setVolumeState(newVol);
-    if (masterGainRef.current && audioCtxRef.current) {
-      masterGainRef.current.gain.setTargetAtTime(newVol, audioCtxRef.current.currentTime, 0.1);
-    }
-  }, []);
-
-  // Listen for initial user gesture to enable audio smoothly
-  useEffect(() => {
+    // 2. Global gesture listener: starts audio on first user touch/click if autoplay was blocked
     const handleFirstGesture = () => {
-      if (userInteractedRef.current) return;
-      userInteractedRef.current = true;
-      window.removeEventListener('click', handleFirstGesture);
+      if (audio.paused && !userExplicitlyPausedRef.current) {
+        audio.play().catch(() => {
+          // Keep paused if still blocked
+        });
+      }
+      window.removeEventListener('pointerdown', handleFirstGesture);
       window.removeEventListener('keydown', handleFirstGesture);
     };
 
-    window.addEventListener('click', handleFirstGesture, { once: true });
+    window.addEventListener('pointerdown', handleFirstGesture, { once: true });
     window.addEventListener('keydown', handleFirstGesture, { once: true });
 
     return () => {
-      window.removeEventListener('click', handleFirstGesture);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('error', handleError);
+      window.removeEventListener('pointerdown', handleFirstGesture);
       window.removeEventListener('keydown', handleFirstGesture);
-      if (visualizerRafRef.current !== null) {
-        cancelAnimationFrame(visualizerRafRef.current);
-      }
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-        audioCtxRef.current.close().catch(() => {});
-      }
     };
+  }, []);
+
+  const play = useCallback(async () => {
+    const audio = getOrCreateGlobalAudio();
+    if (!audio) return;
+    userExplicitlyPausedRef.current = false;
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch {
+      console.warn('MUSIC UNAVAILABLE');
+    }
+  }, []);
+
+  const pause = useCallback(() => {
+    const audio = getOrCreateGlobalAudio();
+    if (!audio) return;
+    userExplicitlyPausedRef.current = true;
+    audio.pause();
+    setIsPlaying(false);
+  }, []);
+
+  const togglePlay = useCallback(() => {
+    const audio = getOrCreateGlobalAudio();
+    if (!audio) return;
+
+    if (audio.paused) {
+      userExplicitlyPausedRef.current = false;
+      audio.play().catch(() => {
+        console.warn('MUSIC UNAVAILABLE');
+      });
+    } else {
+      userExplicitlyPausedRef.current = true;
+      audio.pause();
+    }
+  }, []);
+
+  const setVolume = useCallback((v: number) => {
+    const clamped = Math.max(0, Math.min(1, v));
+    setVolumeState(clamped);
+    const audio = getOrCreateGlobalAudio();
+    if (audio) {
+      audio.volume = clamped;
+    }
   }, []);
 
   return {
     isPlaying,
-    isMuted,
     volume,
-    frequencies: isPlaying ? frequencies : [15, 12, 18, 14, 10],
     togglePlay,
     setVolume,
+    play,
+    pause,
   };
 }
