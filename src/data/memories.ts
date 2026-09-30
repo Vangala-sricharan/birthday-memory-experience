@@ -157,12 +157,12 @@ export const memories: MemorySlot[] = [
     }
   },
 
-  // 04 — BHARGAV: 1200x1600 (Portrait 3:4)
+  // 04 — BHARATH: 1200x1600 (Portrait 3:4)
   // Standing portrait; center 22% keeps heads and upper torso intact.
   {
     id: 4,
     src: "/images/birthday/Bhargav Image.jpeg",
-    title: "04 — BHARGAV",
+    title: "04 — BHARATH",
     slotNumber: "04",
     year: "SOLIDARITY",
     location: "THE INNER CIRCLE",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, Sparkles } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { CinematicArtwork } from './CinematicArtwork';
 import { HERO_IMAGE } from '../data/memories';
@@ -125,7 +125,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
     <section
       id="hero-section"
       ref={containerRef}
-      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-6 pt-12 md:pt-16 pb-20 select-none"
+      className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 pt-12 md:pt-16 pb-16 select-none"
     >
       {/* 3D Depth Layer 1: Atmospheric Center Red Light Flare (1x Parallax) */}
       <div
@@ -146,7 +146,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
 
       {/* 3D Depth Layer 2: Middle floating typographic indices (2x Parallax) */}
       <div
-        className="absolute top-8 md:top-10 left-6 md:left-14 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase flex items-center gap-2 pointer-events-none transition-transform duration-500"
+        className="absolute top-6 md:top-8 left-6 md:left-14 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase flex items-center gap-2 pointer-events-none transition-transform duration-500"
         style={{
           transform: `translate3d(${parallaxX * 35}px, ${parallaxY * 35}px, 0)`,
         }}
@@ -156,7 +156,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
       </div>
 
       <div
-        className="absolute top-8 md:top-10 right-6 md:right-14 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase pointer-events-none transition-transform duration-500"
+        className="absolute top-6 md:top-8 right-6 md:right-14 text-[10px] font-mono tracking-[0.3em] text-zinc-500 uppercase pointer-events-none transition-transform duration-500"
         style={{
           transform: `translate3d(${parallaxX * -35}px, ${parallaxY * -35}px, 0)`,
         }}
@@ -166,7 +166,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
 
       {/* 3D Depth Layer 3: Main Dynamic Typography (3x Parallax) */}
       <div
-        className="relative z-10 flex flex-col items-center justify-center text-center max-w-5xl mx-auto transition-transform duration-500"
+        className="relative z-10 flex flex-col items-center justify-center text-center max-w-5xl mx-auto transition-transform duration-500 w-full"
         style={{
           transform: `translate3d(${parallaxX * 40}px, ${parallaxY * 40}px, 0)`,
         }}
@@ -176,10 +176,13 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
           ref={title1Ref}
           className={`${phase === 0 ? 'block' : 'hidden'} text-center`}
         >
-          <p className="text-xs md:text-sm font-mono tracking-[0.4em] uppercase text-red-500 mb-4">
+          <p className="text-xs md:text-sm font-mono tracking-[0.4em] uppercase text-red-500 mb-3">
             PROLOGUE
           </p>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.15em] text-metallic uppercase leading-tight">
+          <h1
+            style={{ fontSize: 'clamp(2.25rem, 6.2vw, 5.25rem)' }}
+            className="font-cinzel font-black tracking-[0.15em] text-metallic uppercase leading-tight"
+          >
             ONE MORE YEAR.
           </h1>
         </div>
@@ -189,10 +192,13 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
           ref={title2Ref}
           className={`${phase === 1 ? 'block' : 'hidden'} text-center`}
         >
-          <p className="text-xs md:text-sm font-mono tracking-[0.4em] uppercase text-amber-500/80 mb-4">
+          <p className="text-xs md:text-sm font-mono tracking-[0.4em] uppercase text-amber-500/80 mb-3">
             THE ODYSSEY CONTINUES
           </p>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.15em] text-metallic uppercase leading-tight">
+          <h1
+            style={{ fontSize: 'clamp(2.25rem, 6.2vw, 5.25rem)' }}
+            className="font-cinzel font-black tracking-[0.15em] text-metallic uppercase leading-tight"
+          >
             ONE MORE CHAPTER.
           </h1>
         </div>
@@ -200,47 +206,53 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
         {/* Phase 2: Final Grand Reveal */}
         <div
           ref={titleFinalRef}
-          className={`${phase === 2 ? 'block' : 'hidden'} flex flex-col items-center w-full`}
+          className={`${phase === 2 ? 'flex' : 'hidden'} flex-col items-center w-full`}
         >
-          <div className="flex items-center gap-2 px-3 py-1 mb-6 rounded-full border border-red-500/30 bg-red-950/30 text-red-400 text-xs font-mono tracking-[0.3em] uppercase">
-            <Sparkles size={12} className="animate-spin text-red-400" />
-            <span>THE CELEBRATION IS LIVE</span>
-          </div>
-
-          <p className="text-xs sm:text-sm md:text-base font-cinzel tracking-[0.4em] uppercase text-zinc-400 mb-2">
+          {/* HONORING THE MILESTONE */}
+          <p className="text-[10px] sm:text-xs md:text-sm font-cinzel tracking-[0.35em] sm:tracking-[0.4em] uppercase text-zinc-400 mb-1">
             HONORING THE MILESTONE
           </p>
 
           {/* Birthday Date */}
           <div
             ref={dateRef}
-            className="flex items-center justify-center gap-3 sm:gap-4 my-2 sm:my-3"
+            className="flex items-center justify-center gap-3 sm:gap-4 my-2 sm:my-2.5"
           >
-            <span className="w-6 sm:w-10 md:w-14 h-[1px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent" />
+            <span className="w-6 sm:w-10 md:w-12 h-[1px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent" />
             <span className="font-cinzel text-xs sm:text-sm md:text-base font-bold tracking-[0.35em] text-red-400 uppercase drop-shadow-[0_0_12px_rgba(239,68,68,0.6)]">
               30 SEPTEMBER
             </span>
-            <span className="w-6 sm:w-10 md:w-14 h-[1px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent" />
+            <span className="w-6 sm:w-10 md:w-12 h-[1px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent" />
           </div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.12em] text-metallic-silver uppercase leading-none drop-shadow-2xl mt-1">
+          {/* Scaled Responsive Main Birthday Typography */}
+          <h1
+            style={{ fontSize: 'clamp(2rem, 5.2vw, 4.25rem)' }}
+            className="font-cinzel font-black tracking-[0.1em] text-metallic-silver uppercase leading-none drop-shadow-2xl mt-1"
+          >
             HAPPY
           </h1>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.12em] text-metallic-silver uppercase leading-none drop-shadow-2xl mt-2">
+          <h1
+            style={{ fontSize: 'clamp(2rem, 5.2vw, 4.25rem)' }}
+            className="font-cinzel font-black tracking-[0.1em] text-metallic-silver uppercase leading-none drop-shadow-2xl mt-1 sm:mt-1.5"
+          >
             BIRTHDAY,
           </h1>
 
-          <div className="relative mt-3">
-            <span className="text-3xl sm:text-6xl md:text-8xl lg:text-9xl font-cinzel font-black tracking-[0.08em] sm:tracking-[0.12em] text-metallic-crimson uppercase leading-none">
+          <div className="relative mt-2 sm:mt-2.5">
+            <h2
+              style={{ fontSize: 'clamp(1.75rem, 5.6vw, 4.75rem)' }}
+              className="font-cinzel font-black tracking-[0.06em] sm:tracking-[0.1em] text-metallic-crimson uppercase leading-none whitespace-nowrap"
+            >
               {friendName || 'DHARMA RAJU'}
-            </span>
-            {/* Subtle underglow */}
-            <div className="absolute inset-0 bg-red-600/20 blur-xl -z-10" />
+            </h2>
+            {/* Subtle red underglow */}
+            <div className="absolute inset-0 bg-red-600/20 blur-xl -z-10 pointer-events-none" />
           </div>
 
           <div
             ref={subtitleRef}
-            className="mt-6 max-w-xl text-zinc-400 font-sans font-light text-sm md:text-base tracking-wide leading-relaxed mb-10"
+            className="mt-4 sm:mt-5 max-w-xl text-zinc-400 font-sans font-light text-xs sm:text-sm md:text-base tracking-wide leading-relaxed mb-6 sm:mb-8"
           >
             A cinematic testament to memories forged, journeys shared, and the untold wonders awaiting your next horizon.
           </div>
@@ -276,7 +288,7 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
       </div>
 
       {/* Down Scroll Trigger Affordance */}
-      <div className="relative mt-12 z-20 flex flex-col items-center gap-2">
+      <div className="relative mt-10 sm:mt-12 z-20 flex flex-col items-center gap-2">
         <button
           onClick={onExploreClick}
           aria-label="Scroll to explore moments"

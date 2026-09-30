@@ -93,7 +93,7 @@ export const StorySection: React.FC = () => {
   const slot3 = memories[2] || {
     id: 4,
     src: '/images/birthday/04-bhargav.jpeg',
-    title: '04 — BHARGAV',
+    title: '04 — BHARATH',
     year: 'SOLIDARITY',
     presentation: {
       orientation: 'portrait',

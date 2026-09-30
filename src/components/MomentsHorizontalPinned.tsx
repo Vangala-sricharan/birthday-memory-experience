@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Sparkles, Calendar, MapPin, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CinematicArtwork } from './CinematicArtwork';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -101,16 +101,66 @@ const MEMBERS: MemberData[] = [
   },
 ];
 
+// Target plateau points for deliberate member jumping when clicking pills/arrows
+const PLATEAU_TARGETS = [0.09, 0.35, 0.61, 0.86];
+
+// Smoothstep interpolation helper
+function smoothstep(min: number, max: number, value: number): number {
+  const x = Math.max(0, Math.min(1, (value - min) / (max - min)));
+  return x * x * (3 - 2 * x);
+}
+
+/**
+ * Computes smooth continuous horizontal progress across 4 dedicated portrait plateaus:
+ * - 0.00 to 0.18: RISHI plateau (cp = 0)
+ * - 0.18 to 0.26: Transition 0 -> 1 (cp eases 0 -> 1)
+ * - 0.26 to 0.44: SRI CHARAN plateau (cp = 1)
+ * - 0.44 to 0.52: Transition 1 -> 2 (cp eases 1 -> 2)
+ * - 0.52 to 0.70: AJAY plateau (cp = 2)
+ * - 0.70 to 0.78: Transition 2 -> 3 (cp eases 2 -> 3)
+ * - 0.78 to 0.94: SOLO celebration plateau (cp = 3)
+ * - 0.94 to 1.00: Section completion & clean unpin release
+ */
+function computeContinuousProgress(p: number): number {
+  if (p < 0.18) {
+    return 0;
+  }
+  if (p < 0.26) {
+    return smoothstep(0.18, 0.26, p);
+  }
+  if (p < 0.44) {
+    return 1;
+  }
+  if (p < 0.52) {
+    return 1 + smoothstep(0.44, 0.52, p);
+  }
+  if (p < 0.70) {
+    return 2;
+  }
+  if (p < 0.78) {
+    return 2 + smoothstep(0.70, 0.78, p);
+  }
+  return 3;
+}
+
+function computeActiveIndex(cp: number): number {
+  if (cp < 0.5) return 0; // RISHI
+  if (cp < 1.5) return 1; // SRI CHARAN
+  if (cp < 2.5) return 2; // AJAY
+  return 3;               // SOLO
+}
+
 interface MomentsHorizontalPinnedProps {
   friendName: string;
 }
 
-export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = ({ friendName }) => {
+export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = () => {
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [continuousProgress, setContinuousProgress] = useState<number>(0);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [, setIsMobile] = useState<boolean>(false);
 
   // Detect responsive mode
   useEffect(() => {
@@ -129,20 +179,62 @@ export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = (
     if (!trigger || !container) return;
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: trigger,
         start: 'top top',
-        end: '+=2400', // 2400px vertical track driving smooth transition
+        end: '+=5200', // 5200px vertical track: ample breathing room for all 4 portraits + holds + release
         pin: container,
         anticipatePin: 1,
         scrub: 0.8,
         onUpdate: (self) => {
           const p = self.progress;
-          setContinuousProgress(p * (MEMBERS.length - 1));
-          const idx = Math.min(MEMBERS.length - 1, Math.max(0, Math.round(p * (MEMBERS.length - 1))));
+          const cp = computeContinuousProgress(p);
+          const idx = computeActiveIndex(cp);
+          setContinuousProgress(cp);
           setActiveIndex(idx);
+
+          // Broadcast state to right-side progress indicator
+          window.dispatchEvent(
+            new CustomEvent('innerCircleUpdate', {
+              detail: {
+                isActive: self.isActive && p < 0.99,
+                memberIndex: idx,
+                memberNumber: MEMBERS[idx].slotNumber,
+                memberName: MEMBERS[idx].name,
+                progress: p,
+              },
+            })
+          );
+        },
+        onLeave: () => {
+          window.dispatchEvent(
+            new CustomEvent('innerCircleUpdate', {
+              detail: {
+                isActive: false,
+                memberIndex: 3,
+                memberNumber: '04',
+                memberName: 'SOLO',
+                progress: 1,
+              },
+            })
+          );
+        },
+        onLeaveBack: () => {
+          window.dispatchEvent(
+            new CustomEvent('innerCircleUpdate', {
+              detail: {
+                isActive: false,
+                memberIndex: 0,
+                memberNumber: '01',
+                memberName: 'RISHI',
+                progress: 0,
+              },
+            })
+          );
         },
       });
+
+      scrollTriggerRef.current = st;
     }, triggerRef);
 
     return () => {
@@ -153,7 +245,25 @@ export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = (
   const handleSelectMember = useCallback((index: number) => {
     setActiveIndex(index);
     setContinuousProgress(index);
+
+    const st = scrollTriggerRef.current;
+    if (st && st.start !== undefined && st.end !== undefined) {
+      const targetScroll = st.start + PLATEAU_TARGETS[index] * (st.end - st.start);
+      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    }
   }, []);
+
+  const handlePrevMember = useCallback(() => {
+    if (activeIndex > 0) {
+      handleSelectMember(activeIndex - 1);
+    }
+  }, [activeIndex, handleSelectMember]);
+
+  const handleNextMember = useCallback(() => {
+    if (activeIndex < MEMBERS.length - 1) {
+      handleSelectMember(activeIndex + 1);
+    }
+  }, [activeIndex, handleSelectMember]);
 
   const activeMember = MEMBERS[activeIndex] || MEMBERS[0];
 
@@ -161,8 +271,7 @@ export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = (
     <section
       id="journey-section"
       ref={triggerRef}
-      className="relative w-full bg-[#030303] select-none overflow-hidden"
-      style={{ height: '320vh' }}
+      className="relative w-full bg-[#030303] select-none"
     >
       {/* Pinned Viewport Container with safe visual bounds */}
       <div
@@ -330,7 +439,7 @@ export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = (
             {/* Mobile Navigation Arrows */}
             <div className="flex items-center justify-between w-full mt-3 px-2">
               <button
-                onClick={() => handleSelectMember(Math.max(0, activeIndex - 1))}
+                onClick={handlePrevMember}
                 disabled={activeIndex === 0}
                 aria-label="Previous member"
                 className={`p-2 rounded-full border border-white/10 bg-zinc-950/80 text-zinc-300 transition-all ${
@@ -345,7 +454,7 @@ export const MomentsHorizontalPinned: React.FC<MomentsHorizontalPinnedProps> = (
               </span>
 
               <button
-                onClick={() => handleSelectMember(Math.min(MEMBERS.length - 1, activeIndex + 1))}
+                onClick={handleNextMember}
                 disabled={activeIndex === MEMBERS.length - 1}
                 aria-label="Next member"
                 className={`p-2 rounded-full border border-white/10 bg-zinc-950/80 text-zinc-300 transition-all ${

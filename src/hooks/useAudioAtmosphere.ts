@@ -1,33 +1,175 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+/**
+ * ONE persistent global background audio player for the entire birthday experience.
+ *
+ * Characteristics:
+ * - Plays continuously throughout all chapters and sections.
+ * - Looping enabled with zero silent gap between loops.
+ * - Resumes seamlessly from the current playback position without restarting.
+ * - Starts automatically or upon first user interaction (touch/click/key/scroll).
+ * - Decoupled from React lifecycle, ScrollTrigger, route, or section changes.
+ */
+
+import { useState, useEffect, useCallback } from 'react';
 
 const AUDIO_SRC = '/audio/birthday-music.mp3';
+const DEFAULT_VOLUME = 0.35;
 
-// ONE persistent global Audio instance for the entire application
-let globalAudioInstance: HTMLAudioElement | null = null;
-let isAudioInitialized = false;
+class GlobalAudioController {
+  private static instance: GlobalAudioController | null = null;
+  private audio: HTMLAudioElement | null = null;
+  private userExplicitlyPaused: boolean = false;
+  private listeners: Set<(isPlaying: boolean, volume: number) => void> = new Set();
+  private interactionAttached: boolean = false;
 
-function getOrCreateGlobalAudio(): HTMLAudioElement | null {
-  if (typeof window === 'undefined') return null;
+  private constructor() {
+    if (typeof window === 'undefined') return;
+    this.initAudio();
+  }
 
-  if (!globalAudioInstance) {
+  public static getInstance(): GlobalAudioController {
+    if (!GlobalAudioController.instance) {
+      GlobalAudioController.instance = new GlobalAudioController();
+    }
+    return GlobalAudioController.instance;
+  }
+
+  private initAudio() {
+    if (this.audio || typeof window === 'undefined') return;
+
     try {
-      globalAudioInstance = new Audio(AUDIO_SRC);
-      globalAudioInstance.loop = true;
-      globalAudioInstance.volume = 0.35;
-      globalAudioInstance.preload = 'auto';
+      const audio = new Audio(AUDIO_SRC);
+      audio.loop = true;
+      audio.volume = DEFAULT_VOLUME;
+      audio.preload = 'auto';
 
-      globalAudioInstance.addEventListener('error', () => {
-        // Gracefully log to console only without breaking UI
-        console.warn('MUSIC UNAVAILABLE');
+      // Gapless seamless loop guarantee: if ended fires, immediately loop back to 0
+      audio.addEventListener('ended', () => {
+        try {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        } catch {
+          // ignore
+        }
       });
 
-      isAudioInitialized = true;
-    } catch {
-      console.warn('MUSIC UNAVAILABLE');
+      audio.addEventListener('play', () => this.notify());
+      audio.addEventListener('pause', () => this.notify());
+      audio.addEventListener('volumechange', () => this.notify());
+      audio.addEventListener('error', (e) => {
+        console.warn('Audio note:', e);
+      });
+
+      this.audio = audio;
+
+      // Attempt immediate background playback
+      this.attemptAutoplay();
+
+      // Ensure audio starts on very first user gesture if browser blocked unmuted autoplay
+      this.setupInteractionListeners();
+    } catch (err) {
+      console.warn('Audio initialization deferred:', err);
     }
   }
 
-  return globalAudioInstance;
+  private attemptAutoplay() {
+    if (!this.audio) return;
+    const playPromise = this.audio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          this.notify();
+        })
+        .catch(() => {
+          // Autoplay policy prevented playback without gesture; interaction listeners will trigger it
+          this.notify();
+        });
+    }
+  }
+
+  private setupInteractionListeners() {
+    if (this.interactionAttached || typeof window === 'undefined') return;
+    this.interactionAttached = true;
+
+    const onUserInteraction = () => {
+      if (this.audio && this.audio.paused && !this.userExplicitlyPaused) {
+        this.audio.play().then(() => {
+          this.notify();
+        }).catch(() => {});
+      }
+      removeListeners();
+    };
+
+    const removeListeners = () => {
+      window.removeEventListener('pointerdown', onUserInteraction);
+      window.removeEventListener('click', onUserInteraction);
+      window.removeEventListener('keydown', onUserInteraction);
+      window.removeEventListener('touchstart', onUserInteraction);
+      window.removeEventListener('scroll', onUserInteraction);
+    };
+
+    window.addEventListener('pointerdown', onUserInteraction, { passive: true });
+    window.addEventListener('click', onUserInteraction, { passive: true });
+    window.addEventListener('keydown', onUserInteraction, { passive: true });
+    window.addEventListener('touchstart', onUserInteraction, { passive: true });
+    window.addEventListener('scroll', onUserInteraction, { passive: true });
+  }
+
+  public subscribe(listener: (isPlaying: boolean, volume: number) => void): () => void {
+    this.listeners.add(listener);
+    listener(this.getIsPlaying(), this.getVolume());
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private notify() {
+    const isPlaying = this.getIsPlaying();
+    const volume = this.getVolume();
+    this.listeners.forEach((listener) => listener(isPlaying, volume));
+  }
+
+  public getIsPlaying(): boolean {
+    return Boolean(this.audio && !this.audio.paused && !this.audio.ended);
+  }
+
+  public getVolume(): number {
+    return this.audio ? this.audio.volume : DEFAULT_VOLUME;
+  }
+
+  public async play(): Promise<void> {
+    if (!this.audio) return;
+    this.userExplicitlyPaused = false;
+    try {
+      await this.audio.play();
+      this.notify();
+    } catch {
+      // Audio playback deferred until user interaction
+    }
+  }
+
+  public pause(): void {
+    if (!this.audio) return;
+    this.userExplicitlyPaused = true;
+    this.audio.pause();
+    this.notify();
+  }
+
+  public togglePlay(): void {
+    if (!this.audio) return;
+    if (this.audio.paused) {
+      this.play();
+    } else {
+      this.pause();
+    }
+  }
+
+  public setVolume(v: number): void {
+    const clamped = Math.max(0, Math.min(1, v));
+    if (this.audio) {
+      this.audio.volume = clamped;
+    }
+    this.notify();
+  }
 }
 
 export interface AudioState {
@@ -41,115 +183,34 @@ export interface AudioState {
 
 export function useAudioAtmosphere(): AudioState {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [volume, setVolumeState] = useState<number>(0.35);
-  const userExplicitlyPausedRef = useRef<boolean>(false);
+  const [volume, setVolumeState] = useState<number>(DEFAULT_VOLUME);
 
   useEffect(() => {
-    const audio = getOrCreateGlobalAudio();
-    if (!audio) return;
-
-    // Reset playback to start on fresh load only once
-    if (!isAudioInitialized) {
-      try {
-        audio.currentTime = 0;
-      } catch {
-        // ignore
-      }
-    }
-
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-    const handleError = () => {
-      console.warn('MUSIC UNAVAILABLE');
-      setIsPlaying(false);
-    };
-
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('error', handleError);
-
-    // Sync current playing and volume state
-    setIsPlaying(!audio.paused && !audio.ended);
-    setVolumeState(audio.volume);
-
-    // 1. Attempt autoplay on mount
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch(() => {
-          // Autoplay blocked by browser policy without user gesture
-          setIsPlaying(false);
-        });
-    }
-
-    // 2. Global gesture listener: starts audio on first user touch/click if autoplay was blocked
-    const handleFirstGesture = () => {
-      if (audio.paused && !userExplicitlyPausedRef.current) {
-        audio.play().catch(() => {
-          // Keep paused if still blocked
-        });
-      }
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
-    };
-
-    window.addEventListener('pointerdown', handleFirstGesture, { once: true });
-    window.addEventListener('keydown', handleFirstGesture, { once: true });
+    const controller = GlobalAudioController.getInstance();
+    const unsubscribe = controller.subscribe((playing, vol) => {
+      setIsPlaying(playing);
+      setVolumeState(vol);
+    });
 
     return () => {
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('error', handleError);
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
+      unsubscribe();
     };
-  }, []);
-
-  const play = useCallback(async () => {
-    const audio = getOrCreateGlobalAudio();
-    if (!audio) return;
-    userExplicitlyPausedRef.current = false;
-    try {
-      await audio.play();
-      setIsPlaying(true);
-    } catch {
-      console.warn('MUSIC UNAVAILABLE');
-    }
-  }, []);
-
-  const pause = useCallback(() => {
-    const audio = getOrCreateGlobalAudio();
-    if (!audio) return;
-    userExplicitlyPausedRef.current = true;
-    audio.pause();
-    setIsPlaying(false);
   }, []);
 
   const togglePlay = useCallback(() => {
-    const audio = getOrCreateGlobalAudio();
-    if (!audio) return;
+    GlobalAudioController.getInstance().togglePlay();
+  }, []);
 
-    if (audio.paused) {
-      userExplicitlyPausedRef.current = false;
-      audio.play().catch(() => {
-        console.warn('MUSIC UNAVAILABLE');
-      });
-    } else {
-      userExplicitlyPausedRef.current = true;
-      audio.pause();
-    }
+  const play = useCallback(() => {
+    return GlobalAudioController.getInstance().play();
+  }, []);
+
+  const pause = useCallback(() => {
+    GlobalAudioController.getInstance().pause();
   }, []);
 
   const setVolume = useCallback((v: number) => {
-    const clamped = Math.max(0, Math.min(1, v));
-    setVolumeState(clamped);
-    const audio = getOrCreateGlobalAudio();
-    if (audio) {
-      audio.volume = clamped;
-    }
+    GlobalAudioController.getInstance().setVolume(v);
   }, []);
 
   return {

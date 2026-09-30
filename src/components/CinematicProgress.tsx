@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface ChapterItem {
@@ -16,9 +16,49 @@ const CHAPTERS: ChapterItem[] = [
   { id: 'finale-section', number: '06', label: 'FINALE' },
 ];
 
+interface InnerCircleState {
+  isActive: boolean;
+  memberNumber: string;
+  memberName: string;
+}
+
 export const CinematicProgress: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [overallProgress, setOverallProgress] = useState<number>(0);
+  const [innerCircleState, setInnerCircleState] = useState<InnerCircleState | null>(null);
+  const isInnerCircleActiveRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const handleInnerCircleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        isActive: boolean;
+        memberIndex: number;
+        memberNumber: string;
+        memberName: string;
+        progress: number;
+      }>;
+
+      if (customEvent.detail) {
+        if (customEvent.detail.isActive) {
+          isInnerCircleActiveRef.current = true;
+          setInnerCircleState({
+            isActive: true,
+            memberNumber: customEvent.detail.memberNumber,
+            memberName: customEvent.detail.memberName,
+          });
+          setActiveIndex(1); // Locked firmly on Chapter 02
+        } else {
+          isInnerCircleActiveRef.current = false;
+          setInnerCircleState(null);
+        }
+      }
+    };
+
+    window.addEventListener('innerCircleUpdate', handleInnerCircleUpdate);
+    return () => {
+      window.removeEventListener('innerCircleUpdate', handleInnerCircleUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -26,6 +66,12 @@ export const CinematicProgress: React.FC = () => {
       const totalScrollable = document.documentElement.scrollHeight - window.innerHeight;
       const progress = totalScrollable > 0 ? Math.min(1, Math.max(0, scrollY / totalScrollable)) : 0;
       setOverallProgress(progress);
+
+      // If currently inside the pinned Inner Circle portrait sequence, lock to Chapter 02
+      if (isInnerCircleActiveRef.current) {
+        setActiveIndex(1);
+        return;
+      }
 
       // Determine active section with viewport midpoint bias
       const scrollPosition = scrollY + window.innerHeight * 0.45;
@@ -67,10 +113,21 @@ export const CinematicProgress: React.FC = () => {
           <span className="text-zinc-500">06</span>
         </div>
 
-        {/* Minimal Subtle Chapter Label for Active Chapter */}
-        <span className="hidden sm:block text-[8px] md:text-[9px] font-cinzel font-semibold tracking-[0.25em] text-zinc-400 uppercase mt-0.5 text-right transition-all duration-300">
-          {activeChapter.label}
-        </span>
+        {/* Dynamic Portrait Member Label when inside Chapter 02 (The Inner Circle) */}
+        {innerCircleState?.isActive ? (
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.2em] text-red-400 uppercase mt-0.5 text-right drop-shadow-[0_0_10px_rgba(239,68,68,0.8)] transition-all duration-300">
+              {innerCircleState.memberNumber} — {innerCircleState.memberName}
+            </span>
+            <span className="text-[7px] sm:text-[8px] font-cinzel tracking-[0.25em] text-zinc-500 uppercase text-right">
+              THE INNER CIRCLE
+            </span>
+          </div>
+        ) : (
+          <span className="hidden sm:block text-[8px] md:text-[9px] font-cinzel font-semibold tracking-[0.25em] text-zinc-400 uppercase mt-0.5 text-right transition-all duration-300">
+            {activeChapter.label}
+          </span>
+        )}
       </div>
 
       {/* Vertical Progress Rail System */}
