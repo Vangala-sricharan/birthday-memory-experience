@@ -1,36 +1,85 @@
 /**
  * =======================================================================
- * CINEMATIC BIRTHDAY EXPERIENCE - INTELLIGENT CANVAS CONFIGURATION
+ * CINEMATIC BIRTHDAY EXPERIENCE - SECTION-SPECIFIC PHOTO REGISTRY
  * =======================================================================
  * 
- * Each of the 12 images has been individually analyzed for:
- * - Original dimensions (width x height)
- * - Aspect ratio & orientation (Landscape 4:3 vs Portrait 3:4)
- * - Main subject composition, face locations, and focal centers
- * - Custom canvas aspect ratio, object-position, fit, scale, and max-width sizing
+ * DESIGNATED SECTION ARCHITECTURE:
+ * 1. HERO / LANDING PAGE (1 Photo):
+ *    - Hero image.jpeg (path: /images/birthday/Hero image.jpeg)
+ * 
+ * 2. INNER CIRCLE (EXACTLY 4 Photos in Mandated Order):
+ *    - 1. Rishi Image.jpeg
+ *    - 2. Sri charan Image.jpeg
+ *    - 3. Rishwanth image.jpeg
+ *    - 4. Solo.jpeg
+ * 
+ * 3. BELOW INNER CIRCLE / PEOPLE GALLERY (EXACTLY 10 Photos Line-by-Line):
+ *    - 1. Ajay.jpeg
+ *    - 2. Beer image.jpeg
+ *    - 3. Bhargav Image.jpeg (displayed title: 04 — BHARATH)
+ *    - 4. Journey image.jpeg
+ *    - 5. Party image.jpeg
+ *    - 6. Pratap Image.jpeg
+ *    - 7. Rishi Image.jpeg
+ *    - 8. Rishwanth image.jpeg
+ *    - 9. Sri charan Image.jpeg
+ *    - 10. Solo.jpeg
+ * 
+ * 4. 3D VAULT (EXACTLY 11 Photos, All Except Surprise):
+ *    - 1. Hero image.jpeg
+ *    - 2. Ajay.jpeg
+ *    - 3. Beer image.jpeg
+ *    - 4. Bhargav Image.jpeg
+ *    - 5. Journey image.jpeg
+ *    - 6. Party image.jpeg
+ *    - 7. Pratap Image.jpeg
+ *    - 8. Rishi Image.jpeg
+ *    - 9. Rishwanth image.jpeg
+ *    - 10. Sri charan Image.jpeg
+ *    - 11. Solo.jpeg
+ * 
+ * 5. FINAL SURPRISE (EXACTLY 1 Photo):
+ *    - Surprize image.jpeg (path: /images/birthday/Surprize image.jpeg)
  */
 
 export interface ImagePresentation {
   orientation: 'landscape' | 'portrait';
-  aspectRatio: string;        // CSS aspect ratio class (e.g. aspect-[4/3], aspect-[3/4])
-  rawRatio: number;          // width / height decimal
-  fit: 'cover' | 'contain';  // object-fit strategy
-  position: string;          // object-position for focal preservation (e.g. "center 25%")
+  aspectRatio: string;
+  rawRatio: number;
+  fit: 'cover' | 'contain';
+  position: string;
   focalPoint?: { x: number; y: number };
-  scale?: number;            // fine-tuned scale
-  containerMaxWidth: string; // responsive container max width (e.g. max-w-4xl vs max-w-xl)
+  scale?: number;
+  containerMaxWidth: string;
 }
 
-export interface MemorySlot {
-  id: number;
+export type PhotoId =
+  | 'hero'
+  | 'ajay'
+  | 'beer'
+  | 'bhargav'
+  | 'journey'
+  | 'party'
+  | 'pratap'
+  | 'rishi'
+  | 'rishwanth'
+  | 'sri-charan'
+  | 'solo'
+  | 'surprize';
+
+export interface AuthoritativeStoryPhoto {
+  id: PhotoId;
+  fileName: string;
   src: string;
+  name: string;
   title: string;
+  role: string;
   slotNumber: string;
+  year: string;
+  location: string;
   caption: string;
-  year?: string;
-  location?: string;
-  quote?: string;
-  type?: 'hero' | 'memory' | 'surprise';
+  quote: string;
+  assignedSection?: string;
   presentation: ImagePresentation;
 }
 
@@ -53,20 +102,22 @@ export const DEFAULT_CONFIG: ExperienceConfig = {
 };
 
 /**
- * 01 — HERO IMAGE
- * Dimensions: 1600x1200 | Landscape (4:3, ratio 1.33)
- * Composition: Wide panoramic group composition across horizontal width.
- * Canvas: 4:3 ratio with center 45% focal anchor to keep all faces and bodies visible.
+ * MASTER ASSET DEFINITIONS (12 Unique Source Photographs)
  */
-export const HERO_IMAGE: MemorySlot = {
-  id: 1,
-  src: "/images/birthday/Hero image.jpeg",
-  type: "hero",
-  title: "01 — HERO",
-  slotNumber: "01",
-  year: "PROLOGUE",
-  location: "WHERE IT ALL BEGINS",
-  caption: "The journey begins here with DHARMA RAJU.",
+
+// 1. HERO: Hero image.jpeg
+export const PHOTO_HERO: AuthoritativeStoryPhoto = {
+  id: 'hero',
+  fileName: 'Hero image.jpeg',
+  src: '/images/birthday/Hero image.jpeg',
+  name: 'HERO',
+  title: '01 — HERO',
+  role: 'PROLOGUE',
+  slotNumber: '01',
+  year: 'PROLOGUE',
+  location: 'WHERE IT ALL BEGINS',
+  caption: 'The cinematic tribute begins here for DHARMA RAJU.',
+  quote: 'Every legend begins with a defining moment.',
   presentation: {
     orientation: 'landscape',
     aspectRatio: 'aspect-[4/3]',
@@ -79,21 +130,269 @@ export const HERO_IMAGE: MemorySlot = {
   }
 };
 
-/**
- * 12 — SURPRISE IMAGE
- * Dimensions: 960x1280 | Portrait (3:4, ratio 0.75)
- * Composition: Final emotional surprise moment with subject centered vertically.
- * Canvas: 3:4 portrait canvas to prevent cropping heads or context.
- */
-export const SURPRISE_IMAGE: MemorySlot = {
-  id: 12,
-  src: "/images/birthday/Surprize image.jpeg",
-  type: "surprise",
-  title: "12 — SURPRISE",
-  slotNumber: "12",
-  year: "THE GRAND FINALE",
-  location: "FOR DHARMA RAJU",
-  caption: "The final celebration and heartfelt surprise for DHARMA RAJU.",
+// 2. AJAY: Ajay.jpeg
+export const PHOTO_AJAY: AuthoritativeStoryPhoto = {
+  id: 'ajay',
+  fileName: 'Ajay.jpeg',
+  src: '/images/birthday/Ajay.jpeg',
+  name: 'AJAY',
+  title: '01 — AJAY',
+  role: 'THE CORNERSTONE',
+  slotNumber: '01',
+  year: 'MILESTONE',
+  location: 'FRONT LINES',
+  caption: 'Brothers through every storm, celebration, and victory.',
+  quote: 'Some people enter your life and redefine family.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 16%',
+    focalPoint: { x: 50, y: 16 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 3. BEER: Beer image.jpeg
+export const PHOTO_BEER: AuthoritativeStoryPhoto = {
+  id: 'beer',
+  fileName: 'Beer image.jpeg',
+  src: '/images/birthday/Beer image.jpeg',
+  name: 'BEER',
+  title: '02 — REVELRY',
+  role: 'THE GATHERING',
+  slotNumber: '02',
+  year: 'CELEBRATION',
+  location: 'THE ROARING EVENING',
+  caption: 'Glasses raised high, timeless memories echoing through the night.',
+  quote: 'Some memories defy the passage of years...',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 38%',
+    focalPoint: { x: 50, y: 38 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 4. BHARGAV / BHARATH: Bhargav Image.jpeg
+export const PHOTO_BHARGAV: AuthoritativeStoryPhoto = {
+  id: 'bhargav',
+  fileName: 'Bhargav Image.jpeg',
+  src: '/images/birthday/Bhargav Image.jpeg',
+  name: 'BHARATH',
+  title: '03 — BHARATH',
+  role: 'THE ALLIANCE',
+  slotNumber: '03',
+  year: 'UNWAVERING',
+  location: 'SHOULDER TO SHOULDER',
+  caption: 'Standing together through every chapter with fierce loyalty.',
+  quote: '...and somehow become part of the story.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 22%',
+    focalPoint: { x: 50, y: 22 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 5. JOURNEY: Journey image.jpeg
+export const PHOTO_JOURNEY: AuthoritativeStoryPhoto = {
+  id: 'journey',
+  fileName: 'Journey image.jpeg',
+  src: '/images/birthday/Journey image.jpeg',
+  name: 'JOURNEY',
+  title: '04 — THE ODYSSEY',
+  role: 'THE ROAD',
+  slotNumber: '04',
+  year: 'EXPEDITION',
+  location: 'OPEN HIGHWAYS',
+  caption: 'Endless horizons, wheels spinning, stories forged on open roads.',
+  quote: 'It is not about the destination, but the brothers beside you.',
+  presentation: {
+    orientation: 'landscape',
+    aspectRatio: 'aspect-[4/3]',
+    rawRatio: 1.33,
+    fit: 'cover',
+    position: 'center 45%',
+    focalPoint: { x: 50, y: 45 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-2xl lg:max-w-3xl'
+  }
+};
+
+// 6. PARTY: Party image.jpeg
+export const PHOTO_PARTY: AuthoritativeStoryPhoto = {
+  id: 'party',
+  fileName: 'Party image.jpeg',
+  src: '/images/birthday/Party image.jpeg',
+  name: 'PARTY',
+  title: '05 — CELEBRATION',
+  role: 'THE FESTIVAL',
+  slotNumber: '05',
+  year: 'TRIUMPH',
+  location: 'UNDER THE LIGHTS',
+  caption: 'Pure electric energy, roaring laughter, and unmatched camaraderie.',
+  quote: 'Moments that turn into legendary stories.',
+  presentation: {
+    orientation: 'landscape',
+    aspectRatio: 'aspect-[4/3]',
+    rawRatio: 1.33,
+    fit: 'cover',
+    position: 'center 40%',
+    focalPoint: { x: 50, y: 40 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-2xl lg:max-w-3xl'
+  }
+};
+
+// 7. PRATAP: Pratap Image.jpeg
+export const PHOTO_PRATAP: AuthoritativeStoryPhoto = {
+  id: 'pratap',
+  fileName: 'Pratap Image.jpeg',
+  src: '/images/birthday/Pratap Image.jpeg',
+  name: 'PRATAP',
+  title: '06 — THE VANGUARD',
+  role: 'THE HERITAGE',
+  slotNumber: '06',
+  year: 'CHRONICLE',
+  location: 'THE ARCHIVE',
+  caption: 'Shared memories preserved like gold in the vault of time.',
+  quote: 'True camaraderie never fades with time.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 20%',
+    focalPoint: { x: 50, y: 20 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 8. RISHI: Rishi Image.jpeg
+export const PHOTO_RISHI: AuthoritativeStoryPhoto = {
+  id: 'rishi',
+  fileName: 'Rishi Image.jpeg',
+  src: '/images/birthday/Rishi Image.jpeg',
+  name: 'RISHI',
+  title: '01 — RISHI',
+  role: 'THE BROTHERHOOD',
+  slotNumber: '01',
+  year: 'ORIGINS',
+  location: 'FIRST CHAPTERS',
+  caption: 'Through every triumph and quiet trial, an unbroken presence.',
+  quote: 'True brothers need no words to stand together.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 20%',
+    focalPoint: { x: 50, y: 20 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 9. RISHWANTH: Rishwanth image.jpeg
+export const PHOTO_RISHWANTH: AuthoritativeStoryPhoto = {
+  id: 'rishwanth',
+  fileName: 'Rishwanth image.jpeg',
+  src: '/images/birthday/Rishwanth image.jpeg',
+  name: 'RISHWANTH',
+  title: '03 — RISHWANTH',
+  role: 'THE ALLY',
+  slotNumber: '03',
+  year: 'ENDURING',
+  location: 'SACRED CIRCLE',
+  caption: 'A friendship tested by miles and strengthened by years.',
+  quote: 'Bound not just by memory, but by respect.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 20%',
+    focalPoint: { x: 50, y: 20 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 10. SRI CHARAN: Sri charan Image.jpeg
+export const PHOTO_SRI_CHARAN: AuthoritativeStoryPhoto = {
+  id: 'sri-charan',
+  fileName: 'Sri charan Image.jpeg',
+  src: '/images/birthday/Sri charan Image.jpeg',
+  name: 'SRI CHARAN',
+  title: '02 — SRI CHARAN',
+  role: 'THE INNER CIRCLE',
+  slotNumber: '02',
+  year: 'SOLIDARITY',
+  location: 'ALWAYS IN SYNC',
+  caption: 'Laughter that fills the room and loyalty forged in fire.',
+  quote: 'The journey is richest with those who share the climb.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 22%',
+    focalPoint: { x: 50, y: 22 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 11. SOLO: Solo.jpeg
+export const PHOTO_SOLO: AuthoritativeStoryPhoto = {
+  id: 'solo',
+  fileName: 'Solo.jpeg',
+  src: '/images/birthday/Solo.jpeg',
+  name: 'SOLO',
+  title: '04 — SOLO',
+  role: 'THE PROTAGONIST',
+  slotNumber: '04',
+  year: 'ETERNAL',
+  location: 'THE HIGHEST PEAK',
+  caption: 'The legend himself—standing tall at the horizon of his next greatness.',
+  quote: 'Here is to the man, the milestone, and the legacy.',
+  presentation: {
+    orientation: 'portrait',
+    aspectRatio: 'aspect-[3/4]',
+    rawRatio: 0.75,
+    fit: 'cover',
+    position: 'center 20%',
+    focalPoint: { x: 50, y: 20 },
+    scale: 1.0,
+    containerMaxWidth: 'max-w-lg md:max-w-xl'
+  }
+};
+
+// 12. SURPRISE: Surprize image.jpeg
+export const PHOTO_SURPRIZE: AuthoritativeStoryPhoto = {
+  id: 'surprize',
+  fileName: 'Surprize image.jpeg',
+  src: '/images/birthday/Surprize image.jpeg',
+  name: 'SURPRISE',
+  title: '11 — THE SURPRISE',
+  role: 'THE CROWNING MOMENT',
+  slotNumber: '11',
+  year: 'THE GRAND FINALE',
+  location: 'FOR DHARMA RAJU',
+  caption: 'The final heartfelt celebration and unforgettable surprise for DHARMA RAJU.',
+  quote: 'Here is to another year of legendary moments.',
   presentation: {
     orientation: 'portrait',
     aspectRatio: 'aspect-[3/4]',
@@ -107,251 +406,70 @@ export const SURPRISE_IMAGE: MemorySlot = {
 };
 
 /**
- * 10 Core Memory Moments (02 through 11).
- * Custom-tailored canvas for each photo's true orientation and focal center.
+ * =======================================================================
+ * EXACT SECTION-SPECIFIC CONFIGURATIONS (Separated & Non-Deduplicated)
+ * =======================================================================
  */
-export const memories: MemorySlot[] = [
-  // 02 — AJAY: 1200x1600 (Portrait 3:4)
-  // Faces in top-third; center 16% anchors upper faces cleanly.
-  {
-    id: 2,
-    src: "/images/birthday/Ajay.jpeg",
-    title: "02 — AJAY",
-    slotNumber: "02",
-    year: "MILESTONE",
-    location: "COMRADES IN ARMS",
-    caption: "Brothers through every storm and triumph.",
-    quote: "Some people enter your life quietly...",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 16%',
-      focalPoint: { x: 50, y: 16 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
 
-  // 03 — BEER: 1204x1600 (Portrait 3:4)
-  // Toast & gathering scene; center 38% preserves both glasses and faces.
-  {
-    id: 3,
-    src: "/images/birthday/Beer image.jpeg",
-    title: "03 — BEER",
-    slotNumber: "03",
-    year: "REVELRY",
-    location: "MIDNIGHT TOASTS",
-    caption: "Glasses raised to unforgettable nights and stories only we know.",
-    quote: "...and somehow become part of the story.",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 38%',
-      focalPoint: { x: 50, y: 38 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
+// 1. HERO PHOTO (Appears on Hero landing page)
+export const heroPhoto: AuthoritativeStoryPhoto = PHOTO_HERO;
 
-  // 04 — BHARATH: 1200x1600 (Portrait 3:4)
-  // Standing portrait; center 22% keeps heads and upper torso intact.
-  {
-    id: 4,
-    src: "/images/birthday/Bhargav Image.jpeg",
-    title: "04 — BHARATH",
-    slotNumber: "04",
-    year: "SOLIDARITY",
-    location: "THE INNER CIRCLE",
-    caption: "Standing shoulder to shoulder through every chapter.",
-    quote: "Some memories defy the passage of time...",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 22%',
-      focalPoint: { x: 50, y: 22 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
-
-  // 05 — JOURNEY: 1600x1204 (Landscape 4:3)
-  // Open road & scenic expedition; 4:3 landscape canvas with 40% center bias.
-  {
-    id: 5,
-    src: "/images/birthday/Journey image.jpeg",
-    title: "05 — JOURNEY",
-    slotNumber: "05",
-    year: "EXPEDITION",
-    location: "THE OPEN HORIZON",
-    caption: "Chasing horizons, unforgettable voyages, and timeless camaraderie.",
-    quote: "...and simply stay.",
-    presentation: {
-      orientation: 'landscape',
-      aspectRatio: 'aspect-[4/3]',
-      rawRatio: 1.33,
-      fit: 'cover',
-      position: '40% center',
-      focalPoint: { x: 40, y: 50 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-3xl md:max-w-4xl'
-    }
-  },
-
-  // 06 — PARTY: 1600x1204 (Landscape 4:3)
-  // Celebration scene; 4:3 landscape canvas with center 35% focal anchor.
-  {
-    id: 6,
-    src: "/images/birthday/Party image.jpeg",
-    title: "06 — PARTY",
-    slotNumber: "06",
-    year: "CELEBRATION",
-    location: "THE HIGH TIDE",
-    caption: "Pure energy, roaring laughter, and unmatched memories.",
-    quote: "To the moments that shaped who we are.",
-    presentation: {
-      orientation: 'landscape',
-      aspectRatio: 'aspect-[4/3]',
-      rawRatio: 1.33,
-      fit: 'cover',
-      position: 'center 35%',
-      focalPoint: { x: 50, y: 35 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-3xl md:max-w-4xl'
-    }
-  },
-
-  // 07 — PRATAP: 1200x1600 (Portrait 3:4)
-  // Standing camaraderie portrait; center 22% anchors faces without chopping.
-  {
-    id: 7,
-    src: "/images/birthday/Pratap Image.jpeg",
-    title: "07 — PRATAP",
-    slotNumber: "07",
-    year: "LOYALTY",
-    location: "BROTHERHOOD",
-    caption: "Steadfast presence and timeless camaraderie.",
-    quote: "Unshakable through every season.",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 22%',
-      focalPoint: { x: 50, y: 22 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
-
-  // 08 — RISHI: 1200x1600 (Portrait 3:4)
-  // Portrait framing; center 18% focus preserves facial expressions & upper headroom.
-  {
-    id: 8,
-    src: "/images/birthday/Rishi Image.jpeg",
-    title: "08 — RISHI",
-    slotNumber: "08",
-    year: "ADVENTURE",
-    location: "SHARED SUMMITS",
-    caption: "Moments of laughter and shared ambition that echo through years.",
-    quote: "Memories etched in gold.",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 18%',
-      focalPoint: { x: 50, y: 18 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
-
-  // 09 — RISHWANTH: 1200x1600 (Portrait 3:4)
-  // Portrait scene; center 30% preserves composition comfortably.
-  {
-    id: 9,
-    src: "/images/birthday/Rishwanth image.jpeg",
-    title: "09 — RISHWANTH",
-    slotNumber: "09",
-    year: "KINSHIP",
-    location: "THE STRONGHOLD",
-    caption: "Comrades in every endeavor and wild memory.",
-    quote: "Built on unwavering trust.",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 30%',
-      focalPoint: { x: 50, y: 30 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
-
-  // 10 — SRI CHARAN: 1200x1600 (Portrait 3:4)
-  // Portrait; center 20% anchors upper faces and shoulders without clipping.
-  {
-    id: 10,
-    src: "/images/birthday/Sri charan Image.jpeg",
-    title: "10 — SRI CHARAN",
-    slotNumber: "10",
-    year: "FELLOWSHIP",
-    location: "THE SANCTUARY",
-    caption: "Quiet wisdom, steadfast support, and shared triumphs.",
-    quote: "A brotherhood that stands the test of time.",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 20%',
-      focalPoint: { x: 50, y: 20 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  },
-
-  // 11 — SOLO: 1200x1600 (Portrait 3:4)
-  // Solo celebration portrait; center 20% anchors the hero of the day.
-  {
-    id: 11,
-    src: "/images/birthday/Solo.jpeg",
-    title: "11 — SOLO",
-    slotNumber: "11",
-    year: "THE CHAMPION",
-    location: "IN THE SPOTLIGHT",
-    caption: "The individual whose milestone and greatness we gather to celebrate.",
-    quote: "Here's to the legend himself.",
-    presentation: {
-      orientation: 'portrait',
-      aspectRatio: 'aspect-[3/4]',
-      rawRatio: 0.75,
-      fit: 'cover',
-      position: 'center 20%',
-      focalPoint: { x: 50, y: 20 },
-      scale: 1.0,
-      containerMaxWidth: 'max-w-lg md:max-w-xl'
-    }
-  }
+// 2. INNER CIRCLE (EXACTLY 4 Photos: Rishi -> Sri Charan -> Rishwanth -> Solo)
+export const innerCirclePhotos: AuthoritativeStoryPhoto[] = [
+  PHOTO_RISHI,
+  PHOTO_SRI_CHARAN,
+  PHOTO_RISHWANTH,
+  PHOTO_SOLO,
 ];
 
-// Complete array of all 12 assets in exact sequence
-export const allMemories: MemorySlot[] = [
-  HERO_IMAGE,
-  ...memories,
-  SURPRISE_IMAGE
+// 3. PEOPLE GALLERY / BELOW INNER CIRCLE (EXACTLY 10 Photos Line-by-Line)
+export const peopleGalleryPhotos: AuthoritativeStoryPhoto[] = [
+  PHOTO_AJAY,
+  PHOTO_BEER,
+  PHOTO_BHARGAV,
+  PHOTO_JOURNEY,
+  PHOTO_PARTY,
+  PHOTO_PRATAP,
+  PHOTO_RISHI,
+  PHOTO_RISHWANTH,
+  PHOTO_SRI_CHARAN,
+  PHOTO_SOLO,
 ];
 
-// Backward compatibility aliases
-export const MEMORY_PHOTOS = memories;
-export const FINAL_PHOTO = SURPRISE_IMAGE;
+// 4. 3D VAULT (EXACTLY 11 Photos, All Except Surprise)
+export const vaultPhotos: AuthoritativeStoryPhoto[] = [
+  PHOTO_HERO,
+  PHOTO_AJAY,
+  PHOTO_BEER,
+  PHOTO_BHARGAV,
+  PHOTO_JOURNEY,
+  PHOTO_PARTY,
+  PHOTO_PRATAP,
+  PHOTO_RISHI,
+  PHOTO_RISHWANTH,
+  PHOTO_SRI_CHARAN,
+  PHOTO_SOLO,
+];
+
+// 5. FINAL SURPRISE (EXACTLY 1 Photo)
+export const finalSurprise: AuthoritativeStoryPhoto = PHOTO_SURPRIZE;
+
+/**
+ * BACKWARD COMPATIBILITY ALIASES & EXPORTS
+ */
+export const HERO_PHOTO = heroPhoto;
+export const HERO_IMAGE = heroPhoto;
+export const INNER_CIRCLE_PHOTOS = innerCirclePhotos;
+export const PEOPLE_GALLERY_PHOTOS = peopleGalleryPhotos;
+export const MOMENTS_PHOTOS = peopleGalleryPhotos;
+export const VAULT_PHOTOS = vaultPhotos;
+export const FINAL_SURPRISE_PHOTO = finalSurprise;
+export const SURPRISE_IMAGE = finalSurprise;
+export const FINALE_PHOTO = finalSurprise;
+export const memories = vaultPhotos;
+export const MEMORY_PHOTOS = vaultPhotos;
+export const ALL_STORY_PHOTOS = peopleGalleryPhotos;
+export type MemorySlot = AuthoritativeStoryPhoto;
 
 export const CINEMATIC_QUOTES = [
   {

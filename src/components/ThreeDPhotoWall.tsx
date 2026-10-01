@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CinematicArtwork } from './CinematicArtwork';
-import { memories, MemorySlot } from '../data/memories';
+import { VAULT_PHOTOS, AuthoritativeStoryPhoto } from '../data/memories';
 import { Sparkles, X, Calendar, MapPin, Maximize2 } from 'lucide-react';
 
 interface ThreeDPhotoWallProps {
@@ -9,7 +9,7 @@ interface ThreeDPhotoWallProps {
 }
 
 export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, parallaxY }) => {
-  const [selectedPhoto, setSelectedPhoto] = useState<MemorySlot | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<AuthoritativeStoryPhoto | null>(null);
 
   // Depth plane offsets for cinematic staggered multi-plane gallery
   const depthPattern = [
@@ -33,7 +33,7 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
       <div className="max-w-4xl mx-auto text-center mb-24">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-950/20 text-red-400 text-xs font-mono tracking-[0.3em] uppercase mb-4">
           <Sparkles size={12} className="text-red-500" />
-          <span>SPATIAL GALLERY ({memories.length} SLOTS)</span>
+          <span>SPATIAL GALLERY ({VAULT_PHOTOS.length} ARCHIVAL PLATES)</span>
         </div>
         <h2 className="text-4xl md:text-7xl font-cinzel font-black tracking-wider text-metallic uppercase">
           THE 3D VAULT
@@ -51,7 +51,7 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
             transform: `rotateY(${parallaxX * 7}deg) rotateX(${-parallaxY * 7}deg)`,
           }}
         >
-          {memories.map((item: MemorySlot, idx: number) => {
+          {VAULT_PHOTOS.map((item: AuthoritativeStoryPhoto, idx: number) => {
             const pattern = depthPattern[idx % depthPattern.length];
             const isPortrait = item.presentation?.orientation === 'portrait';
             // Portrait cards take 4 columns (1/3 row on desktop, 1/2 on tablet), Landscape takes 8 columns (2/3 row)
@@ -89,7 +89,7 @@ export const ThreeDPhotoWall: React.FC<ThreeDPhotoWallProps> = ({ parallaxX, par
                   <div className="absolute bottom-0 inset-x-0 p-5 flex items-end justify-between z-10">
                     <div>
                       <span className="text-[10px] font-mono tracking-widest text-red-400 uppercase block mb-1">
-                        SLOT {item.slotNumber} // {item.presentation?.orientation.toUpperCase()}
+                        PLATE {String(idx + 1).padStart(2, '0')} // {item.presentation?.orientation.toUpperCase()}
                       </span>
                       <h3 className="text-lg md:text-xl font-cinzel font-bold text-white tracking-wide">
                         {item.title}

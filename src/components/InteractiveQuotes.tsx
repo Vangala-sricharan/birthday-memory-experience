@@ -43,6 +43,7 @@ export const InteractiveQuotes: React.FC = () => {
 
   return (
     <section
+      id="quotes-section"
       ref={containerRef}
       className="relative w-full py-28 px-6 md:px-16 bg-[#020202] text-white select-none overflow-hidden"
     >

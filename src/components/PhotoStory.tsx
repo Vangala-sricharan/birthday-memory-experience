@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CinematicArtwork } from './CinematicArtwork';
-import { memories, MemorySlot } from '../data/memories';
+import { peopleGalleryPhotos, AuthoritativeStoryPhoto } from '../data/memories';
 import { Sparkles, Calendar, MapPin } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -146,19 +146,19 @@ export const PhotoStory: React.FC<PhotoStoryProps> = () => {
       <div className="max-w-4xl mx-auto text-center mb-28">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-950/20 text-red-400 text-xs font-mono tracking-[0.3em] uppercase mb-4">
           <Sparkles size={12} className="text-red-500" />
-          <span>CURATED ARCHIVE ({memories.length} SLOTS)</span>
+          <span>PEOPLE GALLERY ({peopleGalleryPhotos.length} FRAMES)</span>
         </div>
         <h2 className="text-4xl md:text-7xl font-cinzel font-black tracking-wider text-metallic uppercase">
           OUR MOMENTS
         </h2>
         <p className="mt-4 text-zinc-400 text-sm md:text-base font-sans font-light max-w-xl mx-auto leading-relaxed">
-          Every photo is a preserved frame of time. Scroll to observe dynamic cinematic transitions across our shared journey.
+          “Some people enter your life quietly, and somehow become an essential part of the journey.”
         </p>
       </div>
 
       {/* Scalable Cinematic Moments Showcase with Per-Photo Canvas Tuning */}
       <div className="max-w-6xl mx-auto flex flex-col gap-36 md:gap-44">
-        {memories.map((slot: MemorySlot, idx: number) => {
+        {peopleGalleryPhotos.map((slot: AuthoritativeStoryPhoto, idx: number) => {
           const meta = getTransitionMeta(idx);
           const isWipe = idx % 4 === 1;
           const containerWidth = slot.presentation?.containerMaxWidth || 'max-w-xl';
@@ -171,7 +171,7 @@ export const PhotoStory: React.FC<PhotoStoryProps> = () => {
                   {meta.label}
                 </span>
                 <span className="text-zinc-500 text-[11px]">
-                  SLOT {slot.slotNumber} // {slot.presentation.orientation.toUpperCase()}
+                  FRAME {String(idx + 1).padStart(2, '0')} OF {peopleGalleryPhotos.length} // {slot.presentation.orientation.toUpperCase()}
                 </span>
               </div>
 

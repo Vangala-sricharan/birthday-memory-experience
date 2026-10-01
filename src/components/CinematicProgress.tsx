@@ -10,9 +10,9 @@ interface ChapterItem {
 const CHAPTERS: ChapterItem[] = [
   { id: 'hero-section', number: '01', label: 'PROLOGUE' },
   { id: 'journey-section', number: '02', label: 'THE RUN' },
-  { id: 'story-section', number: '03', label: 'THE STORY' },
-  { id: 'moments-section', number: '04', label: 'MOMENTS' },
-  { id: 'gallery-section', number: '05', label: '3D VAULT' },
+  { id: 'moments-section', number: '03', label: 'OUR MOMENTS' },
+  { id: 'gallery-section', number: '04', label: '3D VAULT' },
+  { id: 'quotes-section', number: '05', label: 'CHRONICLES' },
   { id: 'finale-section', number: '06', label: 'FINALE' },
 ];
 

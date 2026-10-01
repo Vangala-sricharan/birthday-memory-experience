@@ -17,7 +17,6 @@ import { CinematicProgress } from './components/CinematicProgress';
 import { MotionBackground } from './components/MotionBackground';
 import { CinematicHero } from './components/CinematicHero';
 import { MomentsHorizontalPinned } from './components/MomentsHorizontalPinned';
-import { StorySection } from './components/StorySection';
 import { PhotoStory } from './components/PhotoStory';
 import { ThreeDPhotoWall } from './components/ThreeDPhotoWall';
 import { InteractiveQuotes } from './components/InteractiveQuotes';
@@ -109,10 +108,7 @@ export default function App() {
         {/* 02. THE RUN: Real GSAP ScrollTrigger Pinned Horizontal Journey */}
         <MomentsHorizontalPinned friendName={config.friendName} />
 
-        {/* 03. THE STORY: Narrative Chronicle Between Moments */}
-        <StorySection />
-
-        {/* 04. OUR MOMENTS: Scale Expansion, Clip-path Wipe, Color Shift & 3D Tilt */}
+        {/* 03. BELOW INNER CIRCLE: Exactly 10 Photos Line-by-Line with Cinematic Transitions */}
         <PhotoStory friendName={config.friendName} />
 
         {/* 05. 3D VAULT: Multi-plane Spatial Interactive Photo Gallery */}
